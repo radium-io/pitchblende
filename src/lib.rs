@@ -8,12 +8,16 @@ use wasm_bindgen::prelude::*;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
+use ammonia;
+use comrak::{markdown_to_html, ComrakOptions};
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, pitchblende!");
+pub fn render(s: &str) -> String {
+    let mut options = ComrakOptions::default();
+    options.render.unsafe_ = true;
+    let html = markdown_to_html(s, &options);
+    ammonia::Builder::default()
+        .add_tag_attributes("code", &["class"])
+        .clean(&html)
+        .to_string()
 }
